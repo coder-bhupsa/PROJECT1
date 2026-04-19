@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Family Tree</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Manrope', sans-serif; background: #87CEEB; overflow-x: hidden; }
+
+        /* Cursor Trail */
+        .cursor-dot {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle, #ff6b6b, #ee5a24);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s ease;
+            mix-blend-mode: screen;
+        }
+        .cursor-trail {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(255, 107, 107, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transition: all 0.15s ease-out;
+        }
+
+        /* Sparkle Particles */
+        .sparkle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9997;
+            animation: sparkleAnim 0.8s ease-out forwards;
+        }
+        @keyframes sparkleAnim {
+            0% { transform: scale(1) translateY(0); opacity: 1; }
+            100% { transform: scale(0) translateY(-40px); opacity: 0; }
+        }
+
+        /* Page Transitions */
+        .page {
+            display: none;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .page.active {
+            display: block;
+        }
+        .page.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Profile Card */
+        .profile-card {
+            position: relative;
+            border-radius: 24px;
+            padding: 2px;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            padding: 2px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.1));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+        .profile-card:hover {
+            transform: translateY(-12px) scale(1.03);
+            box-shadow: 0 30px 60px -15px rgba(0,0,0,0.3);
+        }
+        .profile-card:hover .card-image {
+            transform: scale(1.08);
+        }
+        .profile-card:hover .glow-ring {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        .card-image {
+            transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glow-ring {
+            opacity: 0;
+            transition: all 0.5s ease;
+        }
+
+        /* Floating Animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .float-anim {
+            animation: float 3s ease-in-out infinite;
+        }
+        .float-anim-delay {
+            animation: float 3s ease-in-out 1s infinite;
+        }
+
+        /* Pulse Ring */
+        @keyframes pulseRing {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 0.3; }
+            100% { transform: scale(0.95); opacity: 0.7; }
+        }
+        .pulse-ring {
+            animation: pulseRing 2s ease-in-out infinite;
+        }
+
+        /* Background Bubbles */
+        .bubble {
+            position: fixed;
+            border-radius: 50%;
+            opacity: 0.1;
+            pointer-events: none;
+            animation: bubbleFloat linear infinite;
+        }
+        @keyframes bubbleFloat {
+            0% { transform: translateY(100vh) rotate(0deg); }
+            100% { transform: translateY(-100px) rotate(360deg); }
+        }
+
+        /* Connection Lines */
+        .connection-line {
+            position: absolute;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.6), rgba(255,255,255,0.1));
+            width: 2px;
+        }
+
+        /* Back Button */
+        .back-btn {
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 8px 25px -5px rgba(0,0,0,0.2);
+        }
+
+        /* Title Animation */
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 0 20px rgba(255,255,255,0.3); }
+            50% { text-shadow: 0 0 40px rgba(255,255,255,0.6), 0 0 80px rgba(255,255,255,0.2); }
+        }
+        .title-glow {
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        /* Tree Connector */
+        .tree-connector {
+            position: relative;
+        }
+        .tree-connector::after {
+            content: '';
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            width: 2px;
+            height: 30px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.4); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.6); }
+
+        /* Ripple Effect */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            animation: rippleAnim 0.6s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes rippleAnim {
+            0% { width: 0; height: 0; opacity: 0.6; }
+            100% { width: 200px; height: 200px; opacity: 0; }
+        }
+
+        /* Confetti */
+        .confetti-piece {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9996;
+            animation: confettiFall 2s ease-in forwards;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Badge */
+        .role-badge {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        /* Heart float for couples */
+        @keyframes heartFloat {
+            0% { transform: translateY(0) scale(0); opacity: 0; }
+            20% { transform: translateY(-10px) scale(1); opacity: 1; }
+            80% { transform: translateY(-40px) scale(1); opacity: 0.8; }
+            100% { transform: translateY(-60px) scale(0.5); opacity: 0; }
+        }
+        .heart-float {
+            animation: heartFloat 1.5s ease-out forwards;
+            position: absolute;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Stars background */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+        .star {
+            position: fixed;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: twinkle ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen relative">
+
+    <!-- Custom Cursor -->
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-trail" id="cursorTrail"></div>
+
+    <!-- Background Bubbles -->
+    <div id="bubbles"></div>
+
+    <!-- Stars -->
+    <div id="stars"></div>
+
+    <!-- PAGE 1: Grandparents -->
+    <div id="page-grandparents" class="page active visible min-h-screen flex flex-col items-center justify-center px-4 py-12 relative">
+        <!-- Decorative Top -->
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
+
+        <!-- Title -->
+        <div class="text-center mb-12 float-anim">
+            <div class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/20 backdrop-blur-md mb-6">
+                <iconify-icon icon="solar:home-2-bold" class="text-white text-lg"></iconify-icon>
+                <span class="text-white text-sm font-semibold tracking-wider uppercase">Our Family Tree</span>
+            </div>
+            <h1 class="text-5xl md:text-7xl font-bold text-white title-glow tracking-tight">
+                Family Roots
+            </h1>
+            <p class="text-white/70 mt-4 text-lg font-light max-w-md mx-auto">
+                Click on a profile to explore our beautiful family
+            </p>
+        </div>
+
+        <!-- Grandparents Cards -->
+        <div class="flex flex-col md:flex-row items-center gap-8 md:gap-16">
+            <!-- Dada -->
+            <div class="profile-card float-anim" style="background: linear-gradient(135deg, #e74c3c, #c0392b);" onclick="navigateTo('page-children')" data-ripple>
+                <div class="rounded-[22px] p-6 flex flex-col items-center text-center" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+                    <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(231,76,60,0.5);"></div>
+                    <div class="relative mb-4">
+                        <div class="w-36 h-36 rounded-full overflow-hidden border-4 border-white/30 pulse-ring">
+                            <img src="https://picsum.photos/seed/sawai-singh/300/300.jpg" class="card-image w-full h-full object-cover" alt="Sawai Singh">
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center shadow-lg">
+                            <iconify-icon icon="solar:crown-bold" class="text-yellow-800 text-sm"></iconify-icon>
+                        </div>
+                    </div>
+                    <span class="role-badge inline-block px-3 py-1 rounded-full bg-white/20 text-white text-xs font-bold tracking-wider uppercase mb-2">Grandfather</span>
+                    <h2 class="text-2xl font-bold text-white tracking-tight">Sawai Singh</h2>
+                    <p class="text-white/80 text-sm mt-1 font-light">Patriarch of the Family</p>
+                    <div class="mt-4 w-full">
+                        <p class="text-white/60 text-sm italic leading-relaxed" style="min-height: 60px;">&nbsp;</p>
+                    </div>
+                    <div class="mt-3 flex items-center gap-1 text-white/50 text-xs">
+                        <iconify-icon icon="solar:arrow-right-linear" class="text-white/70"></iconify-icon>
+                        <span>Click to see children</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Heart Connection -->
+            <div class="flex flex-col items-center gap-2 float-anim-delay">
+                <div class="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
+                    <iconify-icon icon="solar:heart-bold" class="text-white text-2xl"></iconify-icon>
+                </div>
+                <span class="text-white/50 text-xs font-medium">United in Love</span>
+            </div>
+
+            <!-- Dadi -->
+            <div class="profile-card float-anim-delay" style="background: linear-gradient(135deg, #e91e63, #ad1457);" onclick="navigateTo('page-children')" data-ripple>
+                <div class="rounded-[22px] p-6 flex flex-col items-center text-center" style="background: linear-gradient(135deg, #e91e63, #ad1457);">
+                    <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(233,30,99,0.5);"></div>
+                    <div class="relative mb-4">
+                        <div class="w-36 h-36 rounded-full overflow-hidden border-4 border-white/30 pulse-ring">
+                            <img src="https://picsum.photos/seed/indra-kanwar/300/300.jpg" class="card-image w-full h-full object-cover" alt="Indra Kanwar">
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-pink-300 flex items-center justify-center shadow-lg">
+                            <iconify-icon icon="solar:flower-bold" class="text-pink-800 text-sm"></iconify-icon>
+                        </div>
+                    </div>
+                    <span class="role-badge inline-block px-3 py-1 rounded-full bg-white/20 text-white text-xs font-bold tracking-wider uppercase mb-2">Grandmother</span>
+                    <h2 class="text-2xl font-bold text-white tracking-tight">Indra Kanwar</h2>
+                    <p class="text-white/80 text-sm mt-1 font-light">Matriarch of the Family</p>
+                    <div class="mt-4 w-full">
+                        <p class="text-white/60 text-sm italic leading-relaxed" style="min-height: 60px;">&nbsp;</p>
+                    </div>
+                    <div class="mt-3 flex items-center gap-1 text-white/50 text-xs">
+                        <iconify-icon icon="solar:arrow-right-linear" class="text-white/70"></iconify-icon>
+                        <span>Click to see children</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom decoration -->
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/40">
+            <iconify-icon icon="solar:arrow-down-linear" class="text-xl animate-bounce"></iconify-icon>
+        </div>
+    </div>
+
+    <!-- PAGE 2: Children (6 children) -->
+    <div id="page-children" class="page min-h-screen flex flex-col items-center px-4 py-12 relative">
+        <!-- Back Button -->
+        <button class="back-btn fixed top-6 left-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-white/20 backdrop-blur-xl text-white font-semibold text-sm border border-white/20" onclick="navigateTo('page-grandparents')">
+            <iconify-icon icon="solar:arrow-left-linear" class="text-lg"></iconify-icon>
+            Back
+        </button>
+
+        <!-- Header -->
+        <div class="text-center mb-10 mt-8">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-md mb-4">
+                <iconify-icon icon="solar:users-group-rounded-bold" class="text-white"></iconify-icon>
+                <span class="text-white text-xs font-semibold tracking-wider uppercase">Next Generation</span>
+            </div>
+            <h2 class="text-4xl md:text-5xl font-bold text-white tracking-tight">Children of Sawai Singh <br>& Indra Kanwar</h2>
+            <p class="text-white/60 mt-3 text-sm">3 Sons & 3 Daughters</p>
+        </div>
+
+        <!-- Sons Section -->
+        <div class="mb-6">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="h-px w-10 bg-white/30"></div>
+                <span class="text-white/80 text-sm font-bold tracking-wider uppercase">Sons</span>
+                <div class="h-px w-10 bg-white/30"></div>
+            </div>
+            <div class="flex flex-wrap justify-center gap-6">
+                <!-- Vikram Singh -->
+                <div class="profile-card" style="background: linear-gradient(135deg, #2196F3, #1565C0);" onclick="navigateTo('page-vikram')" data-ripple>
+                    <div class="rounded-[22px] p-5 flex flex-col items-center text-center w-56" style="background: linear-gradient(135deg, #2196F3, #1565C0);">
+                        <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(33,150,243,0.5);"></div>
+                        <div class="relative mb-3">
+                            <div class="w-28 h-28 rounded-full overflow-hidden border-3 border-white/30">
+                                <img src="https://picsum.photos/seed/vikram-singh/300/300.jpg" class="card-image w-full h-full object-cover" alt="Vikram Singh">
+                            </div>
+                            <div class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-blue-300 flex items-center justify-center">
+                                <iconify-icon icon="solar:men-bold" class="text-blue-900 text-xs"></iconify-icon>
+                            </div>
+                        </div>
+                        <span class="role-badge px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wider uppercase mb-1">1st Son</span>
+                        <h3 class="text-xl font-bold text-white">Vikram Singh</h3>
+                        <p class="text-white/60 text-xs mt-1">Wife: Teena Kanwar</p>
+                        <p class="text-white/60 text-xs">Children: 3</p>
+                        <div class="mt-3 flex items-center gap-1 text-white/40 text-[10px]">
+                            <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+                            <span>View Family</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bhojraj Singh -->
+                <div class="profile-card" style="background: linear-gradient(135deg, #4CAF50, #2E7D32);" onclick="navigateTo('page-bhojraj')" data-ripple>
+                    <div class="rounded-[22px] p-5 flex flex-col items-center text-center w-56" style="background: linear-gradient(135deg, #4CAF50, #2E7D32);">
+                        <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(76,175,80,0.5);"></div>
+                        <div class="relative mb-3">
+                            <div class="w-28 h-28 rounded-full overflow-hidden border-3 border-white/30">
+                                <img src="https://picsum.photos/seed/bhojraj-singh/300/300.jpg" class="card-image w-full h-full object-cover" alt="Bhojraj Singh">
+                            </div>
+                            <div class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-green-300 flex items-center justify-center">
+                                <iconify-icon icon="solar:men-bold" class="text-green-900 text-xs"></iconify-icon>
+                            </div>
+                        </div>
+                        <span class="role-badge px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wider uppercase mb-1">2nd Son</span>
+                        <h3 class="text-xl font-bold text-white">Bhojraj Singh</h3>
+                        <p class="text-white/60 text-xs mt-1">Wife: Leena Kanwar</p>
+                        <p class="text-white/60 text-xs">Children: 2</p>
+                        <div class="mt-3 flex items-center gap-1 text-white/40 text-[10px]">
+                            <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+                            <span>View Family</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ratan Singh -->
+                <div class="profile-card" style="background: linear-gradient(135deg, #FF9800, #E65100);" onclick="navigateTo('page-ratan')" data-ripple>
+                    <div class="rounded-[22px] p-5 flex flex-col items-center text-center w-56" style="background: linear-gradient(135deg, #FF9800, #E65100);">
+                        <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(255,152,0,0.5);"></div>
+                        <div class="relative mb-3">
+                            <div class="w-28 h-28 rounded-full overflow-hidden border-3 border-white/30">
+                                <img src="https://picsum.photos/seed/ratan-singh/300/300.jpg" class="card-image w-full h-full object-cover" alt="Ratan Singh">
+                            </div>
+                            <div class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-orange-300 flex items-center justify-center">
+                                <iconify-icon icon="solar:men-bold" class="text-orange-900 text-xs"></iconify-icon>
+                            </div>
+                        </div>
+                        <span class="role-badge px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wider uppercase mb-1">3rd Son</span>
+                        <h3 class="text-xl font-bold text-white">Ratan Singh</h3>
+                        <p class="text-white/60 text-xs mt-1">Wife: Pooja Kanwar</p>
+                        <p class="text-white/60 text-xs">Children: 2</p>
+                        <div class="mt-3 flex items-center gap-1 text-white/40 text-[10px]">
+                            <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+                            <span>View Family</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daughters Section -->
+        <div class="mb-8">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="h-px w-10 bg-white/30"></div>
+                <span class="text-white/80 text-sm font-bold tracking-wider uppercase">Daughters</span>
+                <div class="h-px w-10 bg-white/30"></div>
+            </div>
+            <div class="flex flex-wrap justify-center gap-6">
+                <!-- Krishna Kanwar -->
+                <div class="profile-card" style="background: linear-gradient(135deg, #9C27B0, #6A1B9A);" data-ripple>
+                    <div class="rounded-[22px] p-5 flex flex-col items-center text-center w-56" style="background: linear-gradient(135deg, #9C27B0, #6A1B9A);">
+                        <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(156,39,176,0.5);"></div>
+                        <div class="relative mb-3">
+                            <div class="w-28 h-28 rounded-full overflow-hidden border-3 border-white/30">
+                                <img src="https://picsum.photos/seed/krishna-kanwar/300/300.jpg" class="card-image w-full h-full object-cover" alt="Krishna Kanwar">
+                            </div>
+                            <div class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-purple-300 flex items-center justify-center">
+                                <iconify-icon icon="solar:women-bold" class="text-purple-900 text-xs"></iconify-icon>
+                            </div>
+                        </div>
+                        <span class="role-badge px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wider uppercase mb-1">1st Daughter</span>
+                        <h3 class="text-xl font-bold text-white">Krishna Kanwar</h3>
+                        <p class="text-white/60 text-xs mt-1">Daughter</p>
+                    </div>
+                </div>
+
+                <!-- Suman Kanwar -->
+                <div class="profile-card" style="background: linear-gradient(135deg, #00BCD4, #00838F);" data-ripple>
+                    <div class="rounded-[22px] p-5 flex flex-col items-center text-center w-56" style="background: linear-gradient(135deg, #00BCD4, #00838F);">
+                        <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(0,188,212,0.5);"></div>
+                        <div class="relative mb-3">
+                            <div class="w-28 h-28 rounded-full overflow-hidden border-3 border-white/30">
+                                <img src="https://picsum.photos/seed/suman-kanwar/300/300.jpg" class="card-image w-full h-full object-cover" alt="Suman Kanwar">
+                            </div>
+                            <div class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-cyan-300 flex items-center justify-center">
+                                <iconify-icon icon="solar:women-bold" class="text-cyan-900 text-xs"></iconify-icon>
+                            </div>
+                        </div>
+                        <span class="role-badge px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wider uppercase mb-1">2nd Daughter</span>
+                        <h3 class="text-xl font-bold text-white">Suman Kanwar</h3>
+                        <p class="text-white/60 text-xs mt-1">Daughter</p>
+                    </div>
+                </div>
+
+                <!-- Poonam Kanwar -->
+                <div class="profile-card" style="background: linear-gradient(135deg, #F06292, #C2185B);" data-ripple>
+                    <div class="rounded-[22px] p-5 flex flex-col items-center text-center w-56" style="background: linear-gradient(135deg, #F06292, #C2185B);">
+                        <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(240,98,146,0.5);"></div>
+                        <div class="relative mb-3">
+                            <div class="w-28 h-28 rounded-full overflow-hidden border-3 border-white/30">
+                                <img src="https://picsum.photos/seed/poonam-kanwar/300/300.jpg" class="card-image w-full h-full object-cover" alt="Poonam Kanwar">
+                            </div>
+                            <div class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-pink-300 flex items-center justify-center">
+                                <iconify-icon icon="solar:women-bold" class="text-pink-900 text-xs"></iconify-icon>
+                            </div>
+                        </div>
+                        <span class="role-badge px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wider uppercase mb-1">3rd Daughter</span>
+                        <h3 class="text-xl font-bold text-white">Poonam Kanwar</h3>
+                        <p class="text-white/60 text-xs mt-1">Daughter</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 3a: Vikram Singh's Family -->
+    <div id="page-vikram" class="page min-h-screen flex flex-col items-center px-4 py-12 relative">
+        <button class="back-btn fixed top-6 left-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-white/20 backdrop-blur-xl text-white font-semibold text-sm border border-white/20" onclick="navigateTo('page-children')">
+            <iconify-icon icon="solar:arrow-left-linear" class="text-lg"></iconify-icon>
+            Back
+        </button>
+
+        <div class="text-center mb-10 mt-8">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-md mb-4">
+                <iconify-icon icon="solar:home-smile-bold" class="text-white"></iconify-icon>
+                <span class="text-white text-xs font-semibold tracking-wider uppercase">Vikram's Family</span>
+            </div>
+            <h2 class="text-4xl md:text-5xl font-bold text-white tracking-tight">Vikram Singh's<br>Family</h2>
+        </div>
+
+        <!-- Couple -->
+        <div class="flex flex-wrap justify-center items-center gap-8 mb-10">
+            <!-- Vikram -->
+            <div class="profile-card" style="background: linear-gradient(135deg, #2196F3, #1565C0);" data-ripple>
+                <div class="rounded-[22px] p-5 flex flex-col items-center text-center w-52" style="background: linear-gradient(135deg, #2196F3, #1565C0);">
+                    <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(33,150,243,0.5);"></div>
+                    <div class="relative mb-3">
+                        <div class="w-24 h-24 rounded-full overflow-hidden border-3 border-white/30">
+                            <img src="https://picsum.photos/seed/vikram-singh/300/300.jpg" class="card-image w-full h-full object-cover" alt="Vikram Singh">
+                        </div>
+                    </div>
+                    <span class="role-badge px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wider uppercase mb-1">Son</span>
+                    <h3 class="text-lg font-bold text-white">Vikram Singh</h3>
+                    <p class="text-white/60 text-xs mt-1">1st Son of Sawai Singh</p>
+                </div>
+            </div>
+
+            <!-- Heart -->
+            <div class="flex flex-col items-center">
+                <iconify-icon icon="solar:heart-bold" class="text-white text-3xl float-anim"></iconify-icon>
+            </div>
+
+            <!-- Teena -->
+            <div class="profile-card" style="background: linear-gradient(135deg, #5C6BC0, #283593);" data-ripple>
+                <div class="rounded-[22px] p-5 flex flex-col items-center text-center w-52" style="background: linear-gradient(135deg, #5C6BC0, #283593);">
+                    <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(92,107,192,0.5);"></div>
+                    <div class="relative mb-3">
+                        <div class="w-24 h-24 rounded-full overflow-hidden border-3 border-white/30">
+                            <img src="https://picsum.photos/seed/teena-kanwar/300/300.jpg" class="card-image w-full h-full object-cover" alt="Teena Kanwar">
+                        </div>
+                    </div>
+                    <span class="role-badge px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wider uppercase mb-1">Wife</span>
+                    <h3 class="text-lg font-bold text-white">Teena Kanwar</h3>
+                    <p class="text-white/60 text-xs mt-1">Wife of Vikram Singh</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Children Label -->
+        <div class="flex items-center gap-3 mb-5">
+            <div class="h-px w-10 bg-white/30"></div>
+            <span class="text-white/80 text-sm font-bold tracking-wider uppercase">Children</span>
+            <div class="h-px w-10 bg-white/30"></div>
+        </div>
+
+        <!-- Kids -->
+        <div class="flex flex-wrap justify-center gap-6">
+            <!-- Palak -->
+            <div class="profile-card" style="background: linear-gradient(135deg, #EF5350, #C62828);" data-ripple>
+                <div class="rounded-[22px] p-5 flex flex-col items-center text-center w-48" style="background: linear-gradient(135deg, #EF5350, #C62828);">
+                    <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(239,83,80,0.5);"></div>
+                    <div class="relative mb-3">
+                        <div class="w-22 h-22 rounded-full overflow-hidden border-3 border-white/30" style="width:88px;height:88px;">
+                            <img src="https://picsum.photos/seed/palak-singh/300/300.jpg" class="card-image w-full h-full object-cover" alt="Palak">
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-red-300 flex items-center justify-center">
+                            <iconify-icon icon="solar:star-bold" class="text-red-900 text-[10px]"></iconify-icon>
+                        </div>
+                    </div>
+                    <span class="role-badge px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wider uppercase mb-1">Daughter</span>
+                    <h3 class="text-lg font-bold text-white">Palak</h3>
+                    <p class="text-white/60 text-xs mt-1">1st Child</p>
+                </div>
+            </div>
+
+            <!-- Pallavi -->
+            <div class="profile-card" style="background: linear-gradient(135deg, #AB47BC, #7B1FA2);" data-ripple>
+                <div class="rounded-[22px] p-5 flex flex-col items-center text-center w-48" style="background: linear-gradient(135deg, #AB47BC, #7B1FA2);">
+                    <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(171,71,188,0.5);"></div>
+                    <div class="relative mb-3">
+                        <div class="w-22 h-22 rounded-full overflow-hidden border-3 border-white/30" style="width:88px;height:88px;">
+                            <img src="https://picsum.photos/seed/pallavi-singh/300/300.jpg" class="card-image w-full h-full object-cover" alt="Pallavi">
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-purple-300 flex items-center justify-center">
+                            <iconify-icon icon="solar:star-bold" class="text-purple-900 text-[10px]"></iconify-icon>
+                        </div>
+                    </div>
+                    <span class="role-badge px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wider uppercase mb-1">Daughter</span>
+                    <h3 class="text-lg font-bold text-white">Pallavi</h3>
+                    <p class="text-white/60 text-xs mt-1">2nd Child</p>
+                </div>
+            </div>
+
+            <!-- Aradhya -->
+            <div class="profile-card" style="background: linear-gradient(135deg, #26C6DA, #00838F);" data-ripple>
+                <div class="rounded-[22px] p-5 flex flex-col items-center text-center w-48" style="background: linear-gradient(135deg, #26C6DA, #00838F);">
+                    <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(38,198,218,0.5);"></div>
+                    <div class="relative mb-3">
+                        <div class="w-22 h-22 rounded-full overflow-hidden border-3 border-white/30" style="width:88px;height:88px;">
+                            <img src="https://picsum.photos/seed/aradhya-singh/300/300.jpg" class="card-image w-full h-full object-cover" alt="Aradhya">
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-cyan-300 flex items-center justify-center">
+                            <iconify-icon icon="solar:star-bold" class="text-cyan-900 text-[10px]"></iconify-icon>
+                        </div>
+                    </div>
+                    <span class="role-badge px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wider uppercase mb-1">Daughter</span>
+                    <h3 class="text-lg font-bold text-white">Aradhya</h3>
+                    <p class="text-white/60 text-xs mt-1">3rd Child</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 3b: Bhojraj Singh's Family -->
+    <div id="page-bhojraj" class="page min-h-screen flex flex-col items-center px-4 py-12 relative">
+        <button class="back-btn fixed top-6 left-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-white/20 backdrop-blur-xl text-white font-semibold text-sm border border-white/20" onclick="navigateTo('page-children')">
+            <iconify-icon icon="solar:arrow-left-linear" class="text-lg"></iconify-icon>
+            Back
+        </button>
+
+        <div class="text-center mb-10 mt-8">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-md mb-4">
+                <iconify-icon icon="solar:home-smile-bold" class="text-white"></iconify-icon>
+                <span class="text-white text-xs font-semibold tracking-wider uppercase">Bhojraj's Family</span>
+            </div>
+            <h2 class="text-4xl md:text-5xl font-bold text-white tracking-tight">Bhojraj Singh's<br>Family</h2>
+        </div>
+
+        <!-- Couple -->
+        <div class="flex flex-wrap justify-center items-center gap-8 mb-10">
+            <!-- Bhojraj -->
+            <div class="profile-card" style="background: linear-gradient(135deg, #4CAF50, #2E7D32);" data-ripple>
+                <div class="rounded-[22px] p-5 flex flex-col items-center text-center w-52" style="background: linear-gradient(135deg, #4CAF50, #2E7D32);">
+                    <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(76,175,80,0.5);"></div>
+                    <div class="relative mb-3">
+                        <div class="w-24 h-24 rounded-full overflow-hidden border-3 border-white/30">
+                            <img src="https://picsum.photos/seed/bhojraj-singh/300/300.jpg" class="card-image w-full h-full object-cover" alt="Bhojraj Singh">
+                        </div>
+                    </div>
+                    <span class="role-badge px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wider uppercase mb-1">Son</span>
+                    <h3 class="text-lg font-bold text-white">Bhojraj Singh</h3>
+                    <p class="text-white/60 text-xs mt-1">2nd Son of Sawai Singh</p>
+                </div>
+            </div>
+
+            <!-- Heart -->
+            <div class="flex flex-col items-center">
+                <iconify-icon icon="solar:heart-bold" class="text-white text-3xl float-anim"></iconify-icon>
+            </div>
+
+            <!-- Leena -->
+            <div class="profile-card" style="background: linear-gradient(135deg, #66BB6A, #1B5E20);" data-ripple>
+                <div class="rounded-[22px] p-5 flex flex-col items-center text-center w-52" style="background: linear-gradient(135deg, #66BB6A, #1B5E20);">
+                    <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(102,187,106,0.5);"></div>
+                    <div class="relative mb-3">
+                        <div class="w-24 h-24 rounded-full overflow-hidden border-3 border-white/30">
+                            <img src="https://picsum.photos/seed/leena-kanwar/300/300.jpg" class="card-image w-full h-full object-cover" alt="Leena Kanwar">
+                        </div>
+                    </div>
+                    <span class="role-badge px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wider uppercase mb-1">Wife</span>
+                    <h3 class="text-lg font-bold text-white">Leena Kanwar</h3>
+                    <p class="text-white/60 text-xs mt-1">Wife of Bhojraj Singh</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Children -->
+        <div class="flex items-center gap-3 mb-5">
+            <div class="h-px w-10 bg-white/30"></div>
+            <span class="text-white/80 text-sm font-bold tracking-wider uppercase">Children</span>
+            <div class="h-px w-10 bg-white/30"></div>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-6">
+            <!-- Bhupendra Singh -->
+            <div class="profile-card" style="background: linear-gradient(135deg, #8D6E63, #4E342E);" data-ripple>
+                <div class="rounded-[22px] p-5 flex flex-col items-center text-center w-48" style="background: linear-gradient(135deg, #8D6E63, #4E342E);">
+                    <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(141,110,99,0.5);"></div>
+                    <div class="relative mb-3">
+                        <div class="w-22 h-22 rounded-full overflow-hidden border-3 border-white/30" style="width:88px;height:88px;">
+                            <img src="https://picsum.photos/seed/bhupendra-singh/300/300.jpg" class="card-image w-full h-full object-cover" alt="Bhupendra Singh">
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center">
+                            <iconify-icon icon="solar:men-bold" class="text-amber-900 text-[10px]"></iconify-icon>
+                        </div>
+                    </div>
+                    <span class="role-badge px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wider uppercase mb-1">Son</span>
+                    <h3 class="text-lg font-bold text-white">Bhupendra Singh</h3>
+                    <p class="text-white/60 text-xs mt-1">1st Child</p>
+                </div>
+            </div>
+
+            <!-- Tanisha Kanwar -->
+            <div class="profile-card" style="background: linear-gradient(135deg, #EC407A, #AD1457);" data-ripple>
+                <div class="rounded-[22px] p-5 flex flex-col items-center text-center w-48" style="background: linear-gradient(135deg, #EC407A, #AD1457);">
+                    <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(236,64,122,0.5);"></div>
+                    <div class="relative mb-3">
+                        <div class="w-22 h-22 rounded-full overflow-hidden border-3 border-white/30" style="width:88px;height:88px;">
+                            <img src="https://picsum.photos/seed/tanisha-kanwar/300/300.jpg" class="card-image w-full h-full object-cover" alt="Tanisha Kanwar">
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-pink-300 flex items-center justify-center">
+                            <iconify-icon icon="solar:star-bold" class="text-pink-900 text-[10px]"></iconify-icon>
+                        </div>
+                    </div>
+                    <span class="role-badge px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wider uppercase mb-1">Daughter</span>
+                    <h3 class="text-lg font-bold text-white">Tanisha Kanwar</h3>
+                    <p class="text-white/60 text-xs mt-1">2nd Child</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 3c: Ratan Singh's Family -->
+    <div id="page-ratan" class="page min-h-screen flex flex-col items-center px-4 py-12 relative">
+        <button class="back-btn fixed top-6 left-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-white/20 backdrop-blur-xl text-white font-semibold text-sm border border-white/20" onclick="navigateTo('page-children')">
+            <iconify-icon icon="solar:arrow-left-linear" class="text-lg"></iconify-icon>
+            Back
+        </button>
+
+        <div class="text-center mb-10 mt-8">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-md mb-4">
+                <iconify-icon icon="solar:home-smile-bold" class="text-white"></iconify-icon>
+                <span class="text-white text-xs font-semibold tracking-wider uppercase">Ratan's Family</span>
+            </div>
+            <h2 class="text-4xl md:text-5xl font-bold text-white tracking-tight">Ratan Singh's<br>Family</h2>
+        </div>
+
+        <!-- Couple -->
+        <div class="flex flex-wrap justify-center items-center gap-8 mb-10">
+            <!-- Ratan -->
+            <div class="profile-card" style="background: linear-gradient(135deg, #FF9800, #E65100);" data-ripple>
+                <div class="rounded-[22px] p-5 flex flex-col items-center text-center w-52" style="background: linear-gradient(135deg, #FF9800, #E65100);">
+                    <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(255,152,0,0.5);"></div>
+                    <div class="relative mb-3">
+                        <div class="w-24 h-24 rounded-full overflow-hidden border-3 border-white/30">
+                            <img src="https://picsum.photos/seed/ratan-singh/300/300.jpg" class="card-image w-full h-full object-cover" alt="Ratan Singh">
+                        </div>
+                    </div>
+                    <span class="role-badge px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wider uppercase mb-1">Son</span>
+                    <h3 class="text-lg font-bold text-white">Ratan Singh</h3>
+                    <p class="text-white/60 text-xs mt-1">3rd Son of Sawai Singh</p>
+                </div>
+            </div>
+
+            <!-- Heart -->
+            <div class="flex flex-col items-center">
+                <iconify-icon icon="solar:heart-bold" class="text-white text-3xl float-anim"></iconify-icon>
+            </div>
+
+            <!-- Pooja -->
+            <div class="profile-card" style="background: linear-gradient(135deg, #FFA726, #EF6C00);" data-ripple>
+                <div class="rounded-[22px] p-5 flex flex-col items-center text-center w-52" style="background: linear-gradient(135deg, #FFA726, #EF6C00);">
+                    <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(255,167,38,0.5);"></div>
+                    <div class="relative mb-3">
+                        <div class="w-24 h-24 rounded-full overflow-hidden border-3 border-white/30">
+                            <img src="https://picsum.photos/seed/pooja-kanwar-wife/300/300.jpg" class="card-image w-full h-full object-cover" alt="Pooja Kanwar">
+                        </div>
+                    </div>
+                    <span class="role-badge px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wider uppercase mb-1">Wife</span>
+                    <h3 class="text-lg font-bold text-white">Pooja Kanwar</h3>
+                    <p class="text-white/60 text-xs mt-1">Wife of Ratan Singh</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Children -->
+        <div class="flex items-center gap-3 mb-5">
+            <div class="h-px w-10 bg-white/30"></div>
+            <span class="text-white/80 text-sm font-bold tracking-wider uppercase">Children</span>
+            <div class="h-px w-10 bg-white/30"></div>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-6">
+            <!-- Anirudh -->
+            <div class="profile-card" style="background: linear-gradient(135deg, #FF7043, #BF360C);" data-ripple>
+                <div class="rounded-[22px] p-5 flex flex-col items-center text-center w-48" style="background: linear-gradient(135deg, #FF7043, #BF360C);">
+                    <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(255,112,67,0.5);"></div>
+                    <div class="relative mb-3">
+                        <div class="w-22 h-22 rounded-full overflow-hidden border-3 border-white/30" style="width:88px;height:88px;">
+                            <img src="https://picsum.photos/seed/anirudh-singh/300/300.jpg" class="card-image w-full h-full object-cover" alt="Anirudh">
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-orange-300 flex items-center justify-center">
+                            <iconify-icon icon="solar:men-bold" class="text-orange-900 text-[10px]"></iconify-icon>
+                        </div>
+                    </div>
+                    <span class="role-badge px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wider uppercase mb-1">Son</span>
+                    <h3 class="text-lg font-bold text-white">Anirudh</h3>
+                    <p class="text-white/60 text-xs mt-1">1st Child</p>
+                </div>
+            </div>
+
+            <!-- Ananya -->
+            <div class="profile-card" style="background: linear-gradient(135deg, #FFCA28, #F9A825);" data-ripple>
+                <div class="rounded-[22px] p-5 flex flex-col items-center text-center w-48" style="background: linear-gradient(135deg, #FFCA28, #F9A825);">
+                    <div class="glow-ring absolute inset-0 rounded-[22px]" style="box-shadow: 0 0 40px rgba(255,202,40,0.5);"></div>
+                    <div class="relative mb-3">
+                        <div class="w-22 h-22 rounded-full overflow-hidden border-3 border-white/30" style="width:88px;height:88px;">
+                            <img src="https://picsum.photos/seed/ananya-singh/300/300.jpg" class="card-image w-full h-full object-cover" alt="Ananya">
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-yellow-200 flex items-center justify-center">
+                            <iconify-icon icon="solar:star-bold" class="text-yellow-800 text-[10px]"></iconify-icon>
+                        </div>
+                    </div>
+                    <span class="role-badge px-2 py-0.5 rounded-full bg-white/15 text-white/80 text-[10px] font-bold tracking-wider uppercase mb-1">Daughter</span>
+                    <h3 class="text-lg font-bold text-white">Ananya</h3>
+                    <p class="text-white/70 text-xs mt-1">2nd Child</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Family Counter Badge -->
+    <div class="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl bg-white/15 backdrop-blur-xl border border-white/20 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+            <iconify-icon icon="solar:people-nearby-bold" class="text-white text-sm"></iconify-icon>
+        </div>
+        <div>
+            <p class="text-white text-xs font-bold">16 Members</p>
+            <p class="text-white/50 text-[10px]">Our Beautiful Family</p>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CURSOR EFFECTS ====================
+        const cursorDot = document.getElementById('cursorDot');
+        const cursorTrail = document.getElementById('cursorTrail');
+        let mouseX = 0, mouseY = 0;
+        let trailX = 0, trailY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            cursorDot.style.left = mouseX - 6 + 'px';
+            cursorDot.style.top = mouseY - 6 + 'px';
+
+            // Spawn sparkle occasionally
+            if (Math.random() > 0.85) {
+                createSparkle(mouseX, mouseY);
+            }
+        });
+
+        function animateTrail() {
+            trailX += (mouseX - trailX) * 0.15;
+            trailY += (mouseY - trailY) * 0.15;
+            cursorTrail.style.left = trailX - 15 + 'px';
+            cursorTrail.style.top = trailY - 15 + 'px';
+            requestAnimationFrame(animateTrail);
+        }
+        animateTrail();
+
+        // Cursor hover effects on cards
+        document.querySelectorAll('.profile-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                cursorDot.style.transform = 'scale(2)';
+                cursorTrail.style.width = '50px';
+                cursorTrail.style.height = '50px';
+                cursorTrail.style.borderColor = 'rgba(255,255,255,0.8)';
+            });
+            card.addEventListener('mouseleave', () => {
+                cursorDot.style.transform = 'scale(1)';
+                cursorTrail.style.width = '30px';
+                cursorTrail.style.height = '30px';
+                cursorTrail.style.borderColor = 'rgba(255, 107, 107, 0.5)';
+            });
+        });
+
+        // Hide cursor on mobile
+        if ('ontouchstart' in window) {
+            cursorDot.style.display = 'none';
+            cursorTrail.style.display = 'none';
+        }
+
+        // ==================== SPARKLE EFFECT ====================
+        function createSparkle(x, y) {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            const size = Math.random() * 8 + 4;
+            const colors = ['#FFD700', '#FF69B4', '#00FFFF', '#FF6347', '#7B68EE', '#00FF7F'];
+            sparkle.style.width = size + 'px';
+            sparkle.style.height = size + 'px';
+            sparkle.style.background = colors[Math.floor(Math.random() * colors.length)];
+            sparkle.style.borderRadius = '50%';
+            sparkle.style.left = x + (Math.random() - 0.5) * 30 + 'px';
+            sparkle.style.top = y + (Math.random() - 0.5) * 30 + 'px';
+            document.body.appendChild(sparkle);
+            setTimeout(() => sparkle.remove(), 800);
+        }
+
+        // ==================== RIPPLE EFFECT ====================
+        document.querySelectorAll('[data-ripple]').forEach(el => {
+            el.addEventListener('click', function(e) {
+                const ripple = document.createElement('div');
+                ripple.className = 'ripple';
+                const rect = this.getBoundingClientRect();
+                ripple.style.left = e.clientX - rect.left - 100 + 'px';
+                ripple.style.top = e.clientY - rect.top - 100 + 'px';
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // ==================== BACKGROUND BUBBLES ====================
+        function createBubbles() {
+            const container = document.getElementById('bubbles');
+            const colors = ['rgba(255,255,255,0.15)', 'rgba(255,255,255,0.08)', 'rgba(255,255,255,0.12)'];
+            for (let i = 0; i < 15; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                const size = Math.random() * 80 + 20;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+                bubble.style.background = colors[Math.floor(Math.random() * colors.length)];
+                bubble.style.left = Math.random() * 100 + '%';
+                bubble.style.animationDuration = Math.random() * 15 + 10 + 's';
+                bubble.style.animationDelay = Math.random() * 10 + 's';
+                container.appendChild(bubble);
+            }
+        }
+        createBubbles();
+
+        // ==================== STARS ====================
+        function createStars() {
+            const container = document.getElementById('stars');
+            for (let i = 0; i < 30; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDuration = Math.random() * 3 + 1 + 's';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(star);
+            }
+        }
+        createStars();
+
+        // ==================== PAGE NAVIGATION ====================
+        let currentPage = 'page-grandparents';
+
+        function navigateTo(pageId) {
+            if (pageId === currentPage) return;
+
+            const currentEl = document.getElementById(currentPage);
+            const nextEl = document.getElementById(pageId);
+
+            // Fade out current
+            currentEl.classList.remove('visible');
+
+            setTimeout(() => {
+                currentEl.classList.remove('active');
+
+                // Fade in next
+                nextEl.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'instant' });
+
+                // Small delay for DOM paint
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        nextEl.classList.add('visible');
+                    });
+                });
+
+                currentPage = pageId;
+
+                // Confetti celebration
+                createConfetti();
+            }, 400);
+        }
+
+        // ==================== CONFETTI ====================
+        function createConfetti() {
+            const colors = ['#FFD700', '#FF69B4', '#00FFFF', '#FF6347', '#7B68EE', '#00FF7F', '#FF4500', '#1E90FF'];
+            for (let i = 0; i < 25; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti-piece';
+                    const size = Math.random() * 8 + 4;
+                    confetti.style.width = size + 'px';
+                    confetti.style.height = size * (Math.random() * 2 + 0.5) + 'px';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                    confetti.style.animationDuration = Math.random() * 1.5 + 1.5 + 's';
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 50);
+            }
+        }
+
+        // ==================== HEART FLOAT ON COUPLE CARDS ====================
+        document.querySelectorAll('.profile-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                if (this.querySelector('[class*="heart"]') || this.closest('#page-vikram, #page-bhojraj, #page-ratan')) {
+                    // Spawn hearts
+                    for (let i = 0; i < 3; i++) {
+                        setTimeout(() => {
+                            const heart = document.createElement('div');
+                            heart.className = 'heart-float';
+                            heart.innerHTML = '❤️';
+                            heart.style.fontSize = Math.random() * 12 + 10 + 'px';
+                            heart.style.left = Math.random() * 80 + 10 + '%';
+                            heart.style.bottom = '20%';
+                            this.appendChild(heart);
+                            setTimeout(() => heart.remove(), 1500);
+                        }, i * 200);
+                    }
+                }
+            });
+        });
+
+        // ==================== INITIAL LOAD ANIMATION ====================
+        window.addEventListener('load', () => {
+            const cards = document.querySelectorAll('#page-grandparents .profile-card');
+            cards.forEach((card, i) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(40px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 300 + i * 200);
+            });
+        });
+    </script>
+</body>
+</html>

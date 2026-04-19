@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Family Tree</title>
+    <style>
+        /* Modern Animated Background */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #1f1c2c);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: none; /* Hide default cursor for magic effect */
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* NEW Cursor: Glowing Orb & Sparkles */
+        .magic-cursor {
+            position: fixed;
+            width: 15px;
+            height: 15px;
+            background: #fff;
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 15px #fff, 0 0 30px #0ff;
+            z-index: 10000;
+            transition: transform 0.2s ease;
+        }
+
+        .sparkle {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            animation: fallAndFade 0.8s forwards;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        @keyframes fallAndFade {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, calc(-50% + 30px)) scale(0); }
+        }
+
+        /* Typography */
+        h1 {
+            text-align: center;
+            font-size: 3em;
+            margin-top: 40px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.3);
+        }
+
+        .level-title {
+            text-align: center;
+            font-size: 2em;
+            width: 100%;
+            margin-bottom: 30px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+            padding-bottom: 10px;
+        }
+
+        /* Level Container (Click Navigation Logic) */
+        .level-container {
+            display: none;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            padding: 20px 5%;
+            max-width: 1200px;
+            animation: slideUpFade 0.6s ease-out;
+        }
+
+        .level-container.active {
+            display: flex;
+        }
+
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Navigation Buttons */
+        .back-btn {
+            display: block;
+            margin: 0 auto 30px;
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: none; /* Keep cursor hidden over buttons */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(255,255,255,0.2);
+        }
+
+        /* Glassmorphism Profile Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px 20px;
+            width: 280px;
+            text-align: center;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            position: relative;
+        }
+
+        /* Interactive cards get a special hover effect */
+        .card.interactive {
+            cursor: none;
+        }
+        
+        .card.interactive::after {
+            content: 'Click to open family ➔';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            opacity: 0;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        .card:hover {
+            transform: translateY(-15px) scale(1.03);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .card.interactive:hover::after {
+            opacity: 1;
+            bottom: 10px;
+        }
+
+        /* Large Image Spaces */
+        .img-box {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            border: 4px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        .card h2 { margin: 10px 0 5px; font-size: 1.6em; }
+        .card h3 { margin: 10px 0 5px; font-size: 1.4em; }
+        .card p.relation { color: rgba(255,255,255,0.7); font-style: italic; margin: 0; }
+
+        /* Qualities Section */
+        .qualities {
+            margin-top: px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            font-size: 0.9em;
+            color: #ddd;
+            min-height: 80px;
+            text-align: left;
+            border-left: 3px solid;
+        }
+
+        /* Unique Color Tints */
+        .card.dada { background: rgba(255, 107, 107, 0.1); border-top: 3px solid #ff6b6b; }
+        .card.dada .qualities { border-left-color: #ff6b6b; }
+        .card.dadi { background: rgba(254, 202, 87, 0.1); border-top: 3px solid #feca57; }
+        .card.dadi .qualities { border-left-color: #feca57; }
+
+        .card.krishna { background: rgba(255, 159, 243, 0.1); border-top: 3px solid #ff9ff3; }
+        .card.krishna .qualities { border-left-color: #ff9ff3; }
+        .card.suman { background: rgba(0, 210, 211, 0.1); border-top: 3px solid #00d2d3; }
+        .card.suman .qualities { border-left-color: #00d2d3; }
+        .card.poonam { background: rgba(255, 159, 67, 0.1); border-top: 3px solid #ff9f43; }
+        .card.poonam .qualities { border-left-color: #ff9f43; }
+
+        .card.vikram { background: rgba(29, 209, 161, 0.1); border-top: 3px solid #1dd1a1; }
+        .card.vikram .qualities { border-left-color: #1dd1a1; }
+        .card.teena { background: rgba(16, 172, 132, 0.1); border-top: 3px solid #10ac84; }
+        .card.teena .qualities { border-left-color: #10ac84; }
+        .card.palak { background: rgba(84, 160, 255, 0.1); border-top: 3px solid #54a0ff; }
+        .card.palak .qualities { border-left-color: #54a0ff; }
+        .card.pallavi { background: rgba(46, 134, 222, 0.1); border-top: 3px solid #2e86de; }
+        .card.pallavi .qualities { border-left-color: #2e86de; }
+        .card.aradhya { background: rgba(0, 168, 255, 0.1); border-top: 3px solid #00a8ff; }
+        .card.aradhya .qualities { border-left-color: #00a8ff; }
+
+        .card.bhojraj { background: rgba(95, 39, 205, 0.1); border-top: 3px solid #5f27cd; }
+        .card.bhojraj .qualities { border-left-color: #5f27cd; }
+        .card.leena { background: rgba(131, 52, 113, 0.1); border-top: 3px solid #833471; }
+        .card.leena .qualities { border-left-color: #833471; }
+        .card.bhupendra { background: rgba(217, 128, 250, 0.1); border-top: 3px solid #d980fa; box-shadow: 0 0 20px rgba(217,128,250,0.3); }
+        .card.bhupendra .qualities { border-left-color: #d980fa; }
+        .card.tanisha { background: rgba(153, 128, 250, 0.1); border-top: 3px solid #9980fa; }
+        .card.tanisha .qualities { border-left-color: #9980fa; }
+
+        .card.ratan { background: rgba(238, 82, 83, 0.1); border-top: 3px solid #ee5253; }
+        .card.ratan .qualities { border-left-color: #ee5253; }
+        .card.pooja { background: rgba(255, 107, 129, 0.1); border-top: 3px solid #ff6b81; }
+        .card.pooja .qualities { border-left-color: #ff6b81; }
+        .card.anirude { background: rgba(200, 214, 229, 0.1); border-top: 3px solid #c8d6e5; }
+        .card.anirude .qualities { border-left-color: #c8d6e5; }
+        .card.ananya { background: rgba(131, 149, 167, 0.1); border-top: 3px solid #8395a7; }
+        .card.ananya .qualities { border-left-color: #8395a7; }
+
+    </style>
+</head>
+<body>
+
+    <div class="magic-cursor" id="magicCursor"></div>
+
+    <h1><i>Welcome to Tanwar Pariwar</i></h1>
+
+    <div id="level-grandparents" class="level-container active">
+        <h2 class="level-title">The Roots</h2>
+        <div class="card dada interactive" onclick="navigate('level-children')">
+            <div class="img-box"></div>
+            <h2>Sawai Singh</h2>
+            <p class="relation">(Dada)</p>
+            <div class="qualities"><strong>Qualities:</strong> Wise, strong, and the foundation of our family.</div>
+        </div>
+        <div class="card dadi interactive" onclick="navigate('level-children')">
+            <img src="maa.jpeg" alt="Dadi" class="img-box">
+            <h2>Indra Kanwar</h2>
+            <p class="relation">(Dadi)</p>
+            <div class="qualities"><strong>Qualities:</strong> Loving, caring, and makes the best food.</div>
+        </div>
+    </div>
+
+    <div id="level-children" class="level-container">
+        <div style="width: 100%;">
+            <button class="back-btn" onclick="navigate('level-grandparents')">⬅ Go Back to Grandparents</button>
+            <h2 class="level-title">The Second Generation</h2>
+        </div>
+        
+        <div class="card vikram interactive" onclick="navigate('level-vikram')">
+            <img src="vikram singh.jpeg" alt="Vikram" class="img-box">
+            <h3>Vikram Singh</h3>
+            <p class="relation">(Eldest Son)</p>
+            <div class="qualities"><strong>Qualities:</strong> A great leader, protective, and responsible.</div>
+        </div>
+        <div class="card bhojraj interactive" onclick="navigate('level-bhojraj')">
+            <img src="papa.jpeg" alt="Bhojraj" class="img-box">
+            <h3>Bhojraj Singh</h3>
+            <p class="relation">(Middle Son)</p>
+            <div class="qualities"><strong>Qualities:</strong> Intelligent, hardworking, and a problem solver.</div>
+        </div>
+        <div class="card ratan interactive" onclick="navigate('level-ratan')">
+            <img src="kakosa.jpeg" alt="Ratan" class="img-box">
+            <h3>Ratan Singh</h3>
+            <p class="relation">(Youngest Son)</p>
+            <div class="qualities"><strong>Qualities:</strong> Fun-loving, adventurous, and full of life.</div>
+        </div>
+
+        <div class="card krishna">
+            <img src="krishan buasa.jpeg" alt="Krishna" class="img-box">
+            <h3>Krishna Kanwar</h3>
+            <p class="relation">(Daughter)</p>
+            <div class="qualities"><strong>Qualities:</strong> Caring, supportive, and always there.</div>
+        </div>
+        <div class="card suman">
+            <div class="img-box"></div>
+            <h3>Suman Kanwar</h3>
+            <p class="relation">(Daughter)</p>
+            <div class="qualities"><strong>Qualities:</strong> Cheerful, creative, and brings joy.</div>
+        </div>
+        <div class="card poonam">
+            <img src="buasa.jpeg" alt="Poonam" class="img-box">
+            <h3>Poonam Kanwar</h3>
+            <p class="relation">(Daughter)</p>
+            <div class="qualities"><strong>Qualities:</strong> Hardworking, responsible, and kind.</div>
+        </div>
+    </div>
+
+    <div id="level-vikram" class="level-container">
+        <div style="width: 100%;">
+            <button class="back-btn" onclick="navigate('level-children')">⬅ Go Back to Siblings</button>
+            <h2 class="level-title">Family of Vikram Singh</h2>
+        </div>
+        
+        <div class="card vikram">
+            <img src="vikram singh.jpeg" alt="Vikram" class="img-box">
+            <h3>Vikram Singh</h3>
+            <p class="relation">(Husband)</p>
+            <div class="qualities"><strong>Qualities:</strong> A great leader, protective, and responsible.</div>
+        </div>
+        <div class="card teena">
+            <img src="masi.jpeg" alt="Teena" class="img-box">
+            <h3>Teena Kanwar</h3>
+            <p class="relation">(Wife)</p>
+            <div class="qualities"><strong>Qualities:</strong> Patient, loving mother, and highly organized.</div>
+        </div>
+        <div class="card palak">
+            <img src="palak.jpeg" alt="Palak" class="img-box">
+            <h3>Palak</h3>
+            <p class="relation">(Daughter)</p>
+            <div class="qualities"><strong>Qualities:</strong> Bright, curious, and loves reading.</div>
+        </div>
+        <div class="card pallavi">
+            <img src="pallavi2.jpeg" alt="Pallavi" class="img-box">
+            <h3>Pallavi</h3>
+            <p class="relation">(Daughter)</p>
+            <div class="qualities"><strong>Qualities:</strong> Energetic, playful, and always smiling.</div>
+        </div>
+        <div class="card aradhya">
+            <img src="aradhya2.jpeg" alt="Aradhya" class="img-box">
+            <h3>Aradhya</h3>
+            <p class="relation">(Daughter)</p>
+            <div class="qualities"><strong>Qualities:</strong> Sweet, artistic, and very observant.</div>
+        </div>
+    </div>
+
+    <div id="level-bhojraj" class="level-container">
+        <div style="width: 100%;">
+            <button class="back-btn" onclick="navigate('level-children')">⬅ Go Back to Siblings</button>
+            <h2 class="level-title">Family of Bhojraj Singh</h2>
+        </div>
+
+        <div class="card bhojraj">
+            <img src="papa.jpeg" alt="Bhojraj" class="img-box">
+            <h3>Bhojraj Singh</h3>
+            <p class="relation">(Husband)</p>
+            <div class="qualities"><strong>Qualities:</strong> Intelligent, hardworking, and a problem solver.</div>
+        </div>
+        <div class="card leena">
+            <img src="mummy.jpeg" alt="Leena" class="img-box">
+            <h3>Leena Kanwar</h3>
+            <p class="relation">(Wife)</p>
+            <div class="qualities"><strong>Qualities:</strong> Graceful, compassionate, and an amazing cook.</div>
+        </div>
+        <div class="card bhupendra">
+            <img src="bhupsa.jpeg" alt="Bhupendra" class="img-box">
+            <h3>Bhupendra Singh</h3>
+            <p class="relation">(Son)</p>
+            <div class="qualities"><strong>Qualities:</strong> Ambitious, tech-savvy, and highly focused.</div>
+        </div>
+        <div class="card tanisha">
+            <img src="tanisha2.jpeg" alt="Tanisha" class="img-box">
+            <h3>Tanisha Kanwar</h3>
+            <p class="relation">(Daughter)</p>
+            <div class="qualities"><strong>Qualities:</strong> Expressive, talented, and very supportive.</div>
+        </div>
+    </div>
+
+    <div id="level-ratan" class="level-container">
+        <div style="width: 100%;">
+            <button class="back-btn" onclick="navigate('level-children')">⬅ Go Back to Siblings</button>
+            <h2 class="level-title">Family of Ratan Singh</h2>
+        </div>
+
+        <div class="card ratan">
+            <img src="kakosa.jpeg" alt="Ratan" class="img-box">
+            <h3>Ratan Singh</h3>
+            <p class="relation">(Husband)</p>
+            <div class="qualities"><strong>Qualities:</strong> Fun-loving, adventurous, and full of life.</div>
+        </div>
+        <div class="card pooja">
+            <img src="kakisa.jpeg" alt="Pooja" class="img-box">
+            <h3>Pooja Kanwar</h3>
+            <p class="relation">(Wife)</p>
+            <div class="qualities"><strong>Qualities:</strong> Warm-hearted, practical, and very friendly.</div>
+        </div>
+        <div class="card anirude">
+            <img src="ani2.jpeg" alt="Anirude" class="img-box">
+            <h3>Anirude</h3>
+            <p class="relation">(Son)</p>
+            <div class="qualities"><strong>Qualities:</strong> Active, sporty, and always ready for a game.</div>
+        </div>
+        <div class="card ananya">
+            <img src="ananya2.jpeg" alt="Ananya" class="img-box">
+            <h3>Ananya</h3>
+            <p class="relation">(Daughter)</p>
+            <div class="qualities"><strong>Qualities:</strong> Gentle, imaginative, and very sweet.</div>
+        </div>
+    </div>
+
+    <script>
+        // Magic Cursor Logic
+        const magicCursor = document.getElementById('magicCursor');
+        
+        // Colors for the sparks
+        const colors = ['#ff6b6b', '#feca57', '#1dd1a1', '#5f27cd', '#54a0ff', '#ff9ff3', '#00d2d3'];
+
+        document.addEventListener('mousemove', (e) => {
+            // Move the main orb
+            magicCursor.style.left = e.clientX + 'px';
+            magicCursor.style.top = e.clientY + 'px';
+
+            // Create sparks randomly as mouse moves (to prevent overwhelming the browser)
+            if(Math.random() > 0.4) {
+                createSparkle(e.clientX, e.clientY);
+            }
+        });
+
+        function createSparkle(x, y) {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            sparkle.style.left = x + 'px';
+            sparkle.style.top = y + 'px';
+            
+            // Assign a random bright color to the spark
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            sparkle.style.background = randomColor;
+            sparkle.style.color = randomColor; // Used for the box-shadow glow
+            
+            document.body.appendChild(sparkle);
+
+            // Remove spark element after animation finishes
+            setTimeout(() => {
+                sparkle.remove();
+            }, 800);
+        }
+
+        // Add an effect to the cursor when hovering over interactive cards
+        const interactiveCards = document.querySelectorAll('.card.interactive, .back-btn');
+        interactiveCards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                magicCursor.style.transform = 'translate(-50%, -50%) scale(2)';
+                magicCursor.style.background = '#feca57'; // Turn gold
+                magicCursor.style.boxShadow = '0 0 20px #feca57, 0 0 40px #ff6b6b';
+            });
+            card.addEventListener('mouseleave', () => {
+                magicCursor.style.transform = 'translate(-50%, -50%) scale(1)';
+                magicCursor.style.background = '#fff';
+                magicCursor.style.boxShadow = '0 0 15px #fff, 0 0 30px #0ff';
+            });
+        });
+
+        // Navigation Logic
+        function navigate(targetId) {
+            // Hide all levels
+            const levels = document.querySelectorAll('.level-container');
+            levels.forEach(level => {
+                level.classList.remove('active');
+            });
+
+            // Show target level and scroll to top smoothly
+            const target = document.getElementById(targetId);
+            if (target) {
+                target.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+    </script>
+</body>
+</html>
